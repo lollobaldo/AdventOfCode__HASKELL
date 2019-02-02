@@ -1,9 +1,9 @@
-#Day 1 Challenge
+# Day 1 Challenge
 
 Main challenge: optimise data rapresentation for part (b) to run in a rasonable amount of time.
 
-#Part (a)
+# Part (a)
 Sum a list of numbers -- trivial
 
-#Part (b)
+# Part (b)
 Find the first repeated number in a list -- not hard using an ordered data type
