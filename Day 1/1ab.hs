@@ -2,7 +2,6 @@ module Main where
 --import Data.List.Split
 import Data.Set hiding (map,filter)
 
-
 main = do
           contents <- readFile "1ab.txt"
           --print $ parse contents

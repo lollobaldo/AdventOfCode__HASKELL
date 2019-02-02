@@ -1,0 +1,43 @@
+module Main where
+import Data.List
+--import Data.Set hiding (map,filter)
+
+main = do
+          contents <- readFile "2ab.txt"
+          --print $ parse contents
+          putStrLn $ execA $ parse contents
+          putStrLn $ execB $ parse contents
+
+--parse by line based on '\n' Char
+--positive Ints cant have '+' sign
+parse :: String -> [String]
+parse str = lines str
+
+execA :: [String] -> String
+execA = show . checkSum . sumTups . map countRepeats
+
+execB :: [String] -> String
+execB = head
+
+checkSum :: (Int,Int) -> Int
+checkSum (a,b) = a*b
+
+sumTups :: [(Int,Int)] -> (Int,Int)
+sumTups = foldr (\(x,y) (a,b) -> (x+a,y+b)) (0,0)
+
+countRepeats :: String -> (Int,Int)
+countRepeats str = helperCount (sort str) (0,0)
+
+helperCount :: String -> (Int,Int) -> (Int,Int)
+helperCount (ch1:ch2:ch3:chs) (0,0)
+                                    | ch1 == ch2 && ch2 == ch3 = helperCount chs           (0,1)
+                                    | ch1 == ch2               = helperCount (ch3:chs)     (1,0)
+                                    | otherwise                = helperCount (ch2:ch3:chs) (0,0)
+helperCount (ch1:ch2:ch3:chs) (1,0)
+                                    | ch1 == ch2 && ch2 == ch3 = (1,1)
+                                    | otherwise                = helperCount (ch2:ch3:chs) (1,0)
+helperCount (ch1:ch2:chs)     (0,1)
+                                    | ch1 == ch2               = (1,1)
+                                    | otherwise                = helperCount (ch2:chs)     (0,1)
+helperCount [_] ret = ret
+helperCount (ch:chs) ret = helperCount chs ret
