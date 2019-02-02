@@ -1,38 +1,32 @@
-import System.IO
-import Data.List.Split
+module Main where
+--import Data.List.Split
+import Data.Set hiding (map,filter)
 
-mainA = do
+
+main = do
           contents <- readFile "1ab.txt"
           --print $ parse contents
           putStrLn $ execA $ parse contents
-
-mainB = do
-          contents <- readFile "1ab.txt"
           putStrLn $ execB $ parse contents
 
 --parse by line based on '\n' Char
 --positive Ints cant have '+' sign
 parse :: String -> [Int]
-parse str = map read $ splitOn "\n" $ filter (/= '+') str :: [Int]
+parse str = map read $ lines $ filter (/= '+') str
 
 execA :: [Int] -> String
-execA ns = show $ sum ns
+execA = show . sum
 
 execB :: [Int] -> String
-execB ns = show . firstDuplicate . partialSum . cycle $ ns
-
-partialSum' :: [Int] -> [Int]
-partialSum' = scanl (+) 0
+execB = show . firstDuplicate . partialSum . cycle
 
 partialSum :: [Int] -> [Int]
-partialSum (lastFreqs:firstChange:changes) = sum : partialSum (sum:changes)
-                                        where
-                                          sum = lastFreqs + firstChange
+partialSum = scanl (+) 0
 
 firstDuplicate :: [Int] -> Int
-firstDuplicate = helperDuplicate []
+firstDuplicate = helperDuplicate empty
 
-helperDuplicate :: [Int] -> [Int] -> Int
+helperDuplicate :: Set Int -> [Int] -> Int
 helperDuplicate prevs (n:ns)
-                              | n `elem` prevs = n
-                              | otherwise = helperDuplicate (prevs ++ [n]) ns
+                              | n `member` prevs = n
+                              | otherwise = helperDuplicate (insert n prevs) ns
