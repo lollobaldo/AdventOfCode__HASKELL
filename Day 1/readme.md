@@ -1,6 +1,6 @@
 # Day 1 Challenge
 
-Main challenge: optimise data rapresentation for part (b) to run in a rasonable amount of time.
+Main challenge: optimise data rapresentation for part (b) to run in a reasonable amount of time.
 
 # Part (a)
 Sum a list of numbers -- trivial
