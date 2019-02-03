@@ -17,7 +17,7 @@ execA :: [String] -> String
 execA = show . checkSum . sumTups . map countRepeats
 
 execB :: [String] -> String
-execB = head
+execB = lookForCommons
 
 checkSum :: (Int,Int) -> Int
 checkSum (a,b) = a*b
@@ -41,3 +41,16 @@ helperCount (ch1:ch2:chs)     (0,1)
                                     | otherwise                = helperCount (ch2:chs)     (0,1)
 helperCount [_] ret = ret
 helperCount (ch:chs) ret = helperCount chs ret
+
+commonChars :: String -> String -> String
+commonChars s1 s2 = if length common == (length s1 - 1)
+                      then common
+                    else
+                      ""
+                    where
+                      common = [a | (a,b) <- zip s1 s2 , a == b]
+
+lookForCommons :: [String] -> String
+lookForCommons (s:str) = if compareAll == "" then lookForCommons str else compareAll
+                            where
+                              compareAll = concat [commonChars s x | x <- str]
