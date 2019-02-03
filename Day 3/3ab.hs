@@ -1,11 +1,11 @@
 module Main where
-import Data.List
+import Data.List.Split
 
-type Fabric = [[Char]]
+type Fabric = [[SquareInch]]
 type Piece = (Int, Int, Int, Int)
 type Pieces = [Piece]
 
-data SquareInch = '.' | '1' | 'X'
+data SquareInch = Free | Taken | Conflict deriving (Eq,Show)
 
 main = do
           contents <- readFile "3ab.txt"
@@ -14,17 +14,20 @@ main = do
           putStrLn $ execB $ parse contents
 
 --parse by line based on '\n' Char
-parse :: String -> [String]
-parse str = lines str
+parse :: String -> [Piece]
+parse str = [(read x,read y,read a,read b) | [_,_,_,x,y,_,a,b] <- map (splitOneOf "@:,x ") $ lines str]
 
-execA :: [String] -> String
-execA = show . checkSum . sumTups . map countRepeats
+-- parserHelper :: [String] -> Piece
+-- parserHelper [_,_,_,x,y,_,a,b] = ()
 
-execB :: [String] -> String
-execB = lookForCommons
+execA :: [Piece] -> String
+execA = show . count
+
+execB :: [Piece] -> String
+execB ps = "head"
 
 fabric :: Fabric
-fabric = replicate 1001 $ replicate 1001 '.'
+fabric = replicate 1001 $ replicate 1001 Free
 
 insert :: Fabric -> Piece -> Fabric
 insert fab (x,y,w,h) = [if not (i > y && i <= (y+h))
@@ -33,8 +36,8 @@ insert fab (x,y,w,h) = [if not (i > y && i <= (y+h))
                             [if not (j > x && j <= (x+w))
                               then col
                               else
-                                if col == '1' then 'X'
-                                  else if col == '.' then '1' else col
+                                if col == Taken then Conflict
+                                  else if col == Free then Taken else col
                             | (j,col) <- zip [1..] row]
                         | (i,row) <- zip [1..] fab]
 
@@ -43,4 +46,4 @@ final fab [] = fab
 final fab (p:ps) = final (insert fab p) ps
 
 count :: Pieces -> Int
-count ps = length [x | x <- (concat (final fabric ps)) , x == 'X']s
+count ps = length [x | x <- (concat (final fabric ps)) , x == Conflict]
