@@ -2,6 +2,8 @@ type Fabric = [[Char]]
 type Piece = (Int, Int, Int, Int)
 type Pieces = [Piece]
 
+data SquareInch = '.' | '1' | 'X'
+
 fabric :: Fabric
 fabric = replicate 1001 $ replicate 1001 '.'
 
@@ -22,4 +24,4 @@ final fab [] = fab
 final fab (p:ps) = final (insert fab p) ps
 
 count :: Pieces -> Int
-count ps = length [x | x <- (concat (final fabric ps)) , x == 'X']
+count ps = length [x | x <- (concat (final fabric ps)) , x == 'X']s

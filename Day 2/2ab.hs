@@ -1,15 +1,12 @@
 module Main where
 import Data.List
---import Data.Set hiding (map,filter)
 
 main = do
           contents <- readFile "2ab.txt"
-          --print $ parse contents
           putStrLn $ execA $ parse contents
           putStrLn $ execB $ parse contents
 
 --parse by line based on '\n' Char
---positive Ints cant have '+' sign
 parse :: String -> [String]
 parse str = lines str
 

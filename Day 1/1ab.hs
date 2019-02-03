@@ -1,6 +1,6 @@
 module Main where
---import Data.List.Split
-import Data.Set hiding (map,filter)
+
+import Data.Set (Set, empty, insert , member)
 
 main = do
           contents <- readFile "1ab.txt"

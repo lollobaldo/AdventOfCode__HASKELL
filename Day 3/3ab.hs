@@ -1,15 +1,19 @@
 module Main where
 import Data.List
---import Data.Set hiding (map,filter)
+
+type Fabric = [[Char]]
+type Piece = (Int, Int, Int, Int)
+type Pieces = [Piece]
+
+data SquareInch = '.' | '1' | 'X'
 
 main = do
-          contents <- readFile "2ab.txt"
+          contents <- readFile "3ab.txt"
           --print $ parse contents
           putStrLn $ execA $ parse contents
           putStrLn $ execB $ parse contents
 
 --parse by line based on '\n' Char
---positive Ints cant have '+' sign
 parse :: String -> [String]
 parse str = lines str
 
@@ -19,38 +23,24 @@ execA = show . checkSum . sumTups . map countRepeats
 execB :: [String] -> String
 execB = lookForCommons
 
-checkSum :: (Int,Int) -> Int
-checkSum (a,b) = a*b
+fabric :: Fabric
+fabric = replicate 1001 $ replicate 1001 '.'
 
-sumTups :: [(Int,Int)] -> (Int,Int)
-sumTups = foldr (\(x,y) (a,b) -> (x+a,y+b)) (0,0)
+insert :: Fabric -> Piece -> Fabric
+insert fab (x,y,w,h) = [if not (i > y && i <= (y+h))
+                          then row
+                          else
+                            [if not (j > x && j <= (x+w))
+                              then col
+                              else
+                                if col == '1' then 'X'
+                                  else if col == '.' then '1' else col
+                            | (j,col) <- zip [1..] row]
+                        | (i,row) <- zip [1..] fab]
 
-countRepeats :: String -> (Int,Int)
-countRepeats str = helperCount (sort str) (0,0)
+final :: Fabric -> Pieces -> Fabric
+final fab [] = fab
+final fab (p:ps) = final (insert fab p) ps
 
-helperCount :: String -> (Int,Int) -> (Int,Int)
-helperCount (ch1:ch2:ch3:chs) (0,0)
-                                    | ch1 == ch2 && ch2 == ch3 = helperCount chs           (0,1)
-                                    | ch1 == ch2               = helperCount (ch3:chs)     (1,0)
-                                    | otherwise                = helperCount (ch2:ch3:chs) (0,0)
-helperCount (ch1:ch2:ch3:chs) (1,0)
-                                    | ch1 == ch2 && ch2 == ch3 = (1,1)
-                                    | otherwise                = helperCount (ch2:ch3:chs) (1,0)
-helperCount (ch1:ch2:chs)     (0,1)
-                                    | ch1 == ch2               = (1,1)
-                                    | otherwise                = helperCount (ch2:chs)     (0,1)
-helperCount [_] ret = ret
-helperCount (ch:chs) ret = helperCount chs ret
-
-commonChars :: String -> String -> String
-commonChars s1 s2 = if length common == (length s1 - 1)
-                      then common
-                    else
-                      ""
-                    where
-                      common = [a | (a,b) <- zip s1 s2 , a == b]
-
-lookForCommons :: [String] -> String
-lookForCommons (s:str) = if compareAll == "" then lookForCommons str else compareAll
-                            where
-                              compareAll = concat [commonChars s x | x <- str]
+count :: Pieces -> Int
+count ps = length [x | x <- (concat (final fabric ps)) , x == 'X']s
