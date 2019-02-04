@@ -5,7 +5,6 @@ import Data.Char (isDigit)
 type Fabric = [[SquareInch]]
 type ID = Int
 type Piece = (ID, Int, Int, Int, Int)
-type Pieces = [Piece]
 
 data SquareInch = Free | Taken | Conflict deriving (Eq,Show)
 
@@ -29,7 +28,7 @@ execA :: [Piece] -> String
 execA = show . countConflicts
 
 execB :: [Piece] -> String
-execB ps = "head"
+execB = show . checkFree [] . formatter
 
 fabric :: Fabric
 fabric = replicate 1001 $ replicate 1001 Free
@@ -46,25 +45,25 @@ insert fab (_,x,y,w,h) = [if not (i > y && i <= (y+h))
                             | (j,col) <- zip [1..] row]
                         | (i,row) <- zip [1..] fab]
 
-final :: Fabric -> Pieces -> Fabric
-final fab [] = fab
-final fab (p:ps) = final (insert fab p) ps
+insertAll :: Fabric -> [Piece] -> Fabric
+insertAll fab [] = fab
+insertAll fab (p:ps) = insertAll (insert fab p) ps
 
-countConflicts :: Pieces -> Int
-countConflicts ps = length [x | x <- (concat (final fabric ps)) , x == Conflict]
+countConflicts :: [Piece] -> Int
+countConflicts ps = length [x | x <- (concat (insertAll fabric ps)) , x == Conflict]
 
--- final :: Pieces -> Pieces -> Int
--- final _ [] = 0
--- final pre (p@(id,_,_,_,_):ps)
---               | traceShow (p) (check p (pre++ps)) = id
---               | otherwise = final (pre++[p]) ps
+checkFree :: [Piece] -> [Piece] -> Int
+checkFree _ [] = 0
+checkFree pre (p@(id,_,_,_,_):ps)
+              | checkIntersect p (pre++ps) = id
+              | otherwise = checkFree (pre++[p]) ps
 
--- formatter ps = [format p | p <- ps]
--- format (id,x,y,w,h) = (id,x+1,y+1,x+w,y+h)
+formatter ps = [format p | p <- ps]
+format (id,x,y,w,h) = (id,x+1,y+1,x+w,y+h)
 
--- check :: Piece -> Pieces -> Bool
--- check p@(_,x,y,w,h) ps = and [notIntersect p s | s <-ps]
+checkIntersect :: Piece -> [Piece] -> Bool
+checkIntersect p@(_,x,y,w,h) ps = and [notIntersect p s | s <-ps]
 
--- notIntersect :: Piece -> Piece -> Bool
--- notIntersect (_,x,y,w,h) (_,a,b,c,d) = (x > c || a > w ||
---                                         y > d || b > h)
+notIntersect :: Piece -> Piece -> Bool
+notIntersect (_,x,y,w,h) (_,a,b,c,d) = (x > c || a > w ||
+                                        y > d || b > h)
