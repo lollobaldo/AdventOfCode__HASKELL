@@ -21,7 +21,7 @@ parse str = [(read x,read y,read a,read b) | [_,_,_,x,y,_,a,b] <- map (splitOneO
 -- parserHelper [_,_,_,x,y,_,a,b] = ()
 
 execA :: [Piece] -> String
-execA = show . count
+execA = show . countConflicts
 
 execB :: [Piece] -> String
 execB ps = "head"
@@ -45,5 +45,5 @@ final :: Fabric -> Pieces -> Fabric
 final fab [] = fab
 final fab (p:ps) = final (insert fab p) ps
 
-count :: Pieces -> Int
-count ps = length [x | x <- (concat (final fabric ps)) , x == Conflict]
+countConflicts :: Pieces -> Int
+countConflicts ps = length [x | x <- (concat (final fabric ps)) , x == Conflict]
