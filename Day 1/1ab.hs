@@ -4,20 +4,19 @@ import Data.Set (Set, empty, insert , member)
 
 main = do
           contents <- readFile "1ab.txt"
-          --print $ parse contents
-          putStrLn $ execA $ parse contents
-          putStrLn $ execB $ parse contents
+          print . execA . parse $ contents
+          print . execB . parse $ contents
 
 --parse by line based on '\n' Char
 --positive Ints cant have '+' sign
 parse :: String -> [Int]
-parse str = map read $ lines $ filter (/= '+') str
+parse = map read . lines . filter (/= '+')
 
-execA :: [Int] -> String
-execA = show . sum
+execA :: [Int] -> Int
+execA = sum
 
-execB :: [Int] -> String
-execB = show . firstDuplicate . partialSum . cycle
+execB :: [Int] -> Int
+execB = firstDuplicate . partialSum . cycle
 
 partialSum :: [Int] -> [Int]
 partialSum = scanl (+) 0

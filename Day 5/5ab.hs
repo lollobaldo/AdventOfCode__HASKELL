@@ -9,8 +9,8 @@ main = do
           contents <- readFile "5ab.txt"
           --print $ length $ reduce contents
           --print $ foldl1 min $ (\c -> length $ reduce $ filter (\d -> (toLower d) /= c) contents) <$> ['a'..'z']
-          --print $ execA $ parse contents
-          --print $ execB $ parse contents
+          print . execA . parse $ contents
+          print . execB . parse $ contents
 
 --parse by line based on '\n' Char
 parse :: String -> Polymer

@@ -3,15 +3,15 @@ import Data.List
 
 main = do
           contents <- readFile "2ab.txt"
-          putStrLn $ execA $ parse contents
-          putStrLn $ execB $ parse contents
+          print . execA . parse $ contents
+          print . execB . parse $ contents
 
 --parse by line based on '\n' Char
 parse :: String -> [String]
 parse str = lines str
 
-execA :: [String] -> String
-execA = show . checkSum . sumTups . map countRepeats
+execA :: [String] -> Int
+execA = checkSum . sumTups . map countRepeats
 
 execB :: [String] -> String
 execB = lookForCommons
