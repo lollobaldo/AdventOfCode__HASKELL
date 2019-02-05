@@ -7,10 +7,10 @@ type Polymer = [Unit]
 
 main = do
           contents <- readFile "5ab.txt"
-          --print $ length $ reduce contents
-          --print $ foldl1 min $ (\c -> length $ reduce $ filter (\d -> (toLower d) /= c) contents) <$> ['a'..'z']
-          print . execA . parse $ contents
-          print . execB . parse $ contents
+          print $ length $ reduce contents
+          print $ foldl1 min $ (\c -> length $ reduce $ filter (\d -> (toLower d) /= c) contents) <$> ['a'..'z']
+          --print . execA . parse $ contents
+          --print . execB . parse $ contents
 
 --parse by line based on '\n' Char
 parse :: String -> Polymer
@@ -25,9 +25,9 @@ execB = minimum . tryAll ['a'..'z']
 reactor :: Polymer -> Polymer
 reactor [] = []
 reactor [a] = [a]
-reactor (x:y:zs)
-                | checkIfReact x y = reactor zs
-                | otherwise        = x : reactor (y:zs)
+reactor (x:y:z:zs)
+                    | checkIfReact x y = reactor zs
+                    | otherwise        = x : reactor (y:zs)
 
 checkIfReact :: Unit -> Unit -> Bool
 checkIfReact a b = (toLower a == toLower b) && isUpper a /= isUpper b
