@@ -1,36 +1,37 @@
 module Main where
 
 import Data.Char
+import Data.List
 
 type Unit = Char
 type Polymer = [Unit]
 
 main = do
           contents <- readFile "5ab.txt"
-          print $ length $ reduce contents
-          print $ foldl1 min $ (\c -> length $ reduce $ filter (\d -> (toLower d) /= c) contents) <$> ['a'..'z']
-          --print . execA . parse $ contents
-          --print . execB . parse $ contents
+          print . execA . parse $ contents
+          print . execB . parse $ contents
 
 --parse by line based on '\n' Char
 parse :: String -> Polymer
 parse str = str
 
 execA :: Polymer -> Int
-execA = length . whileChanges reactor
+execA = length . reactor
 
 execB :: Polymer -> Int
 execB = minimum . tryAll ['a'..'z']
 
 reactor :: Polymer -> Polymer
-reactor [] = []
-reactor [a] = [a]
-reactor (x:y:z:zs)
-                    | checkIfReact x y = reactor zs
-                    | otherwise        = x : reactor (y:zs)
+reactor = foldl' reactor' []
+            where
+              reactor' :: Polymer -> Unit -> Polymer
+              reactor' [] x = [x]
+              reactor' acc@(y:_) x
+                  | checkIfReact x y = tail acc
+                  | otherwise        = x:acc
 
 checkIfReact :: Unit -> Unit -> Bool
-checkIfReact a b = (toLower a == toLower b) && isUpper a /= isUpper b
+checkIfReact x y = (toLower x == toLower y) && x /= y
 
 whileChanges :: Eq a => (a -> a) -> a -> a
 whileChanges f str
@@ -40,13 +41,7 @@ whileChanges f str
                           new = f str
 
 tryAll :: String -> String -> [Int]
-tryAll (ch:alph) str = [length . whileChanges reactor . remover ch $ str | ch <- str]
+tryAll alph str = [length . reactor . remover ch $ str | ch <- alph]
 
 remover :: Char -> String -> String
 remover ch str = filter ((ch /=) . toLower) str
-
-reduce l = foldl reduce' [] l
-    where reduce' [] x = [x]
-          reduce' acc@(y:_) x
-            | x /= y && (toLower x) == (toLower y) = tail acc
-            | otherwise                            = x:acc
