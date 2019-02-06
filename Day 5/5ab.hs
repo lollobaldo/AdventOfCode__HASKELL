@@ -2,6 +2,7 @@ module Main where
 
 import Data.Char
 import Data.List
+import Data.Ord
 
 type Unit = Char
 type Polymer = [Unit]
@@ -19,7 +20,7 @@ execA :: Polymer -> Int
 execA = length . reactor
 
 execB :: Polymer -> Int
-execB = minimum . tryAll ['a'..'z']
+execB = tryAll ['a'..'z']
 
 reactor :: Polymer -> Polymer
 reactor = foldl' reactor' []
@@ -33,15 +34,8 @@ reactor = foldl' reactor' []
 checkIfReact :: Unit -> Unit -> Bool
 checkIfReact x y = (toLower x == toLower y) && x /= y
 
-whileChanges :: Eq a => (a -> a) -> a -> a
-whileChanges f str
-                    | str == new = str
-                    | otherwise  = whileChanges f new
-                        where
-                          new = f str
+tryAll :: String -> String -> Int
+tryAll alph str = foldl' (\mi ch -> min mi $ length . reactor . remover str $ ch) (10000) alph
 
-tryAll :: String -> String -> [Int]
-tryAll alph str = [length . reactor . remover ch $ str | ch <- alph]
-
-remover :: Char -> String -> String
-remover ch str = filter ((ch /=) . toLower) str
+remover :: String -> Char -> String
+remover str ch = filter ((ch /=) . toLower) str
