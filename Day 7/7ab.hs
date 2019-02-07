@@ -1,77 +1,46 @@
 module Main where
+
 import Data.List.Split
-import Data.Char (isDigit)
+import Data.List
+import Data.Char (isUpper)
 
-type Fabric = [[SquareInch]]
-type ID = Int
-type Piece = (ID, Int, Int, Int, Int)
-
-data SquareInch = Free | Taken | Conflict deriving (Eq,Show)
+type Clause = (Instruction , Instruction)
+type Requirement = (Instruction , [Instruction])
+type Instruction = Char
 
 main = do
-          contents <- readFile "3ab.txt"
+          contents <- readFile "7ab.txt"
           print . execA . parse $ contents
-          print . execB . parse $ contents
+          --print . execB . parse $ contents
 
 --parse by line based on '\n' Char
-parse :: String -> [Piece]
-parse str = [(id, x, y, a, b) | [id,x,y,a,b] <- map (map read . filter isNumber . splitOneOf "# @,:x") $ lines str]
+parse :: String -> [Clause]
+parse str = [(a, b) | [a,b] <- map (tail . filter isUpper) $ lines str]
 
-isNumber :: String -> Bool
-isNumber str = (all isDigit) str && (not . null) str
+execA :: [Clause] -> String
+execA = satisfy [] . putTogether
 
-execA :: [Piece] -> Int
-execA = countConflicts
+execB :: [Clause] -> String
+execB = undefined
 
-execB :: [Piece] -> Int
-execB = checkFree [] . formatter
+emptyReqs :: [Requirement]
+emptyReqs = zip ['A'..'Z'] (cycle [[]])
 
-fabric :: Fabric
-fabric = replicate 1001 $ replicate 1001 Free
+putTogether :: [Clause] -> [Requirement]
+putTogether = foldl' (\reqs cl -> insertInReqs cl reqs) emptyReqs
 
-insert :: Fabric -> Piece -> Fabric
-insert fab (_,x,y,w,h) = [if not (i > y && i <= (y+h))
-                          then row
-                          else
-                            [if not (j > x && j <= (x+w))
-                              then col
-                              else
-                                if col == Taken then Conflict
-                                  else if col == Free then Taken else col
-                            | (j,col) <- zip [1..] row]
-                        | (i,row) <- zip [1..] fab]
+insertInReqs :: Clause -> [Requirement] -> [Requirement]
+insertInReqs (a,b) (cl@(c,str):reqs)
+                                      | c == b    = (c,a:str):reqs
+                                      | otherwise = cl : insertInReqs (a,b) reqs
 
-insertAll :: Fabric -> [Piece] -> Fabric
-insertAll fab [] = fab
-insertAll fab (p:ps) = insertAll (insert fab p) ps
+removeFromReqs :: Instruction -> Requirement -> Requirement
+removeFromReqs ch req@(c,str)
+                              | ch `elem` str = (c,str\\[ch])
+                              | otherwise     = req
 
-countConflicts :: [Piece] -> Int
-countConflicts ps = length [x | x <- (concat (insertAll fabric ps)) , x == Conflict]
-
-checkFree :: [Piece] -> [Piece] -> Int
-checkFree _ [] = 0
-checkFree pre (p@(id,_,_,_,_):ps)
-              | checkIntersect p (pre++ps) = id
-              | otherwise = checkFree (pre++[p]) ps
-
-formatter ps = [format p | p <- ps]
-format (id,x,y,w,h) = (id,x+1,y+1,x+w,y+h)
-
-checkIntersect :: Piece -> [Piece] -> Bool
-checkIntersect p@(_,x,y,w,h) ps = and [notIntersect p s | s <-ps]
-
-notIntersect :: Piece -> Piece -> Bool
-notIntersect (_,x,y,w,h) (_,a,b,c,d) = (x > c || a > w ||
-                                        y > d || b > h)
-type Input = [String]
-type Clause = (Char , [Char])
-
-man :: Input -> String
-man inp = undefined
-
-parser :: Input -> [Clause]
-parser inp = [ | ch <- [a..z]]
-
-adder :: Char -> Char -> [Clause] -> [Clause]
-adder ch ad ((c,ls):cs)
-                       |  ch == c && ad `elem` ls = 
+satisfy :: [Requirement] -> [Requirement] -> String
+satisfy _ [] = ""
+satisfy acc (req@(c,str):reqs)
+                              | str == "" = c : satisfy [] (map (removeFromReqs c) (acc ++ reqs))
+                              | otherwise = satisfy (acc ++ [req]) reqs
