@@ -3,14 +3,18 @@ module Main where
 import Data.List
 import Data.Char (isUpper, isDigit)
 import Debug.Trace
+import Data.Time
 
 type Points = Int
 type Score  = (Int,Points)
 
 main = do
+          start <- getCurrentTime
           contents <- readFile "9.txt"
           print . execA . parse $ contents
           --print . execB . parse $ contents
+          stop <- getCurrentTime
+          print $ diffUTCTime stop start
 
 --parse by line based on '\n' Char
 parse :: String -> (Int, Points)
@@ -39,6 +43,23 @@ playGame 0    _ _ _                      ret = ret
 playGame left 1 p [0]                   score = playGame (left-1) 2 p [1,0] score
 playGame left 2 p [1,0]                 score = playGame (left-1) 3 p [2,1,0] score
 playGame left n p game@(current:one:xs) score
+                                                -- | n `mod` 23 == 0 = playGame (left-1) (n+1) p (trace (show newGame) newGame) (addPoints (n `mod` p) (n+addn) score)
+                                                -- | otherwise       = playGame (left-1) (n+1) p (trace (show (n:xs ++ [current,one])) (n:xs ++ [current,one])) score
+                                                | n `mod` 23 == 0 = playGame (left-1) (n+1) p newGame (addPoints (n `mod` p) (n+addn) score)
+                                                | otherwise       = playGame (left-1) (n+1) p (n:xs ++ [current,one]) score
+                                                    where
+                                                      addn     = (head . snd) split7
+                                                      newGame  = newStart ++ newEnd
+                                                      newEnd   = fst split7
+                                                      newStart = (tail . snd) split7
+                                                      split7 :: ([Int], [Int])
+                                                      split7 = splitAt (length game - 7) game
+
+playGame' :: Int -> Int -> Int -> [Int] -> [Score] -> [Score]
+playGame' 0    _ _ _                      ret = ret
+playGame' left 1 p [0]                   score = playGame' (left-1) 2 p [1,0] score
+playGame' left 2 p [1,0]                 score = playGame' (left-1) 3 p [2,1,0] score
+playGame' left n p game@(current:one:xs) score
                                                 -- | n `mod` 23 == 0 = playGame (left-1) (n+1) p (trace (show newGame) newGame) (addPoints (n `mod` p) (n+addn) score)
                                                 -- | otherwise       = playGame (left-1) (n+1) p (trace (show (n:xs ++ [current,one])) (n:xs ++ [current,one])) score
                                                 | n `mod` 23 == 0 = playGame (left-1) (n+1) p newGame (addPoints (n `mod` p) (n+addn) score)
