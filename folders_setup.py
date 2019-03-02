@@ -1,13 +1,13 @@
 import os
 for i in range(25):
-	j=i+1
-	os.mkdir("Day {0}".format(j))
+    j = i+1
+    os.mkdir("Day {0}".format(j))
 
-	f = open("Day {0}/{0}.txt".format(j),"w+")
-	f.close()
-	f = open("Day {0}/{0}.hs".format(j),"w+")
+    f = open("Day {0}/{0}.txt".format(j), "w+")
+    f.close()
+    f = open("Day {0}/{0}.hs".format(j), "w+")
 
-	template = """module Main where
+    template = """module Main where
 
 import Data.List.Split
 import Data.List
@@ -31,4 +31,4 @@ execA = id
 execB :: [] -> Int
 execB = undefined"""
 
-	f.write(template.format(j))
+    f.write(template.format(j))
