@@ -6,7 +6,7 @@ import Debug.Trace
 import Data.Time
 
 type Points = Int
-type Score  = (Int,Points)
+type Score = (Int,Points)
 
 main = do
           start <- getCurrentTime

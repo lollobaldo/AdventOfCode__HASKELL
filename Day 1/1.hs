@@ -1,11 +1,12 @@
 module Main where
 
 import Data.Set (Set, empty, insert , member)
+import Control.Monad
 
 main = do
-          contents <- readFile "1.txt"
-          print . execA . parse $ contents
-          print . execB . parse $ contents
+          contents <- liftM parse . readFile $ "1.txt"
+          print . execA $ contents
+          print . execB $ contents
 
 --parse by line based on '\n' Char
 --positive Ints cant have '+' sign

@@ -15,7 +15,7 @@ main = do
 
 --parse by line based on '\n' Char
 parse :: String -> [Piece]
-parse str = [(id, x, y, a, b) | [id,x,y,a,b] <- map (map read . filter isNumber . splitOneOf "# @,:x") $ lines str]
+parse str = [(id, x, y, a, b) | [id,x,y,a,b] <- map (map read . filter isNumber . splitOneOf "<>,") $ lines str]
 
 isNumber :: String -> Bool
 isNumber str = (all isDigit) str && (not . null) str
